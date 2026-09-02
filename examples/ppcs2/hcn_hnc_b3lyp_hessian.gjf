@@ -1,0 +1,12 @@
+%NProcShared=8
+%Mem=128GB
+# B3LYP/def2TZVP Freq SCF=Tight
+
+HCN-HNC B3LYP Hessian at GDV transition state
+
+0 1
+H  -1.049833   0.240728   0.000000
+C   0.080756   0.617003   0.000000
+N   0.080756  -0.563249   0.000000
+
+

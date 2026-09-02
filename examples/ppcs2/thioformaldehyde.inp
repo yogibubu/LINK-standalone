@@ -1,0 +1,15 @@
+%Backend=ppcs2-orca
+%MaxSteps=30
+%Processors=1
+%MemoryGB=8
+%FDWorkers=3
+%CompositeWorkers=1
+# MATRIX Opt=SONIC
+
+thioformaldehyde H2CS LCB25 PCS2^MOLPRO geometry
+
+0 1
+C  1.093405  0.000000  0.000000
+S -0.515395  0.000000  0.000000
+H  1.665666 -0.922403  0.000000
+H  1.665666  0.922403  0.000000

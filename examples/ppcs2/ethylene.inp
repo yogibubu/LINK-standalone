@@ -1,0 +1,17 @@
+%Backend=ppcs2-orca
+%MaxSteps=30
+%Processors=1
+%MemoryGB=8
+%FDWorkers=3
+%CompositeWorkers=1
+# MATRIX Opt=SONIC
+
+ethylene LCB25 PCS2^MOLPRO geometry
+
+0 1
+C  0.000000  0.000000  0.665650
+C  0.000000  0.000000 -0.665650
+H  0.000000  0.922427  1.229290
+H  0.000000  0.922427 -1.229290
+H  0.000000 -0.922427 -1.229290
+H  0.000000 -0.922427  1.229290

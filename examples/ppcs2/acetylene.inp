@@ -1,0 +1,16 @@
+%Backend=ppcs2-orca
+%MaxSteps=8
+%Processors=2
+%MemoryGB=8
+%FDWorkers=3
+%CompositeWorkers=1
+# MATRIX Opt=SONIC
+
+PPCS2 ORCA feasibility: acetylene
+
+0 1
+C  0.00000000  0.00000000 -0.60150000
+C  0.00000000  0.00000000  0.60150000
+H  0.00000000  0.00000000 -1.66250000
+H  0.00000000  0.00000000  1.66250000
+

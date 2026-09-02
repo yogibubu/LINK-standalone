@@ -1,0 +1,12 @@
+%NProcShared=8
+%Mem=128GB
+# B3LYP/def2TZVP Opt=(TS,CalcHFFC,NoEigenTest) SCF=Tight
+
+HCN-HNC transition state, GDV B3LYP restart
+
+0 1
+H  -0.092857   0.037929   0.000000
+C   0.007143   0.617929   0.000000
+N   0.007143  -0.535071   0.000000
+
+

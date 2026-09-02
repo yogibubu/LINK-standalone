@@ -1,0 +1,9 @@
+{
+  "schema": "matrix.link.ppcs2_hcn_hnc_feasibility.v1",
+  "cases": [
+    "HCN minimum",
+    "HNC minimum",
+    "HCN-HNC transition state"
+  ],
+  "purpose": "Bounded feasibility test for one isomerization coordinate"
+}

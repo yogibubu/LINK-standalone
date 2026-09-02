@@ -1,0 +1,16 @@
+%Backend=ppcs2-orca
+%MaxSteps=8
+%Processors=2
+%MemoryGB=8
+%FDWorkers=3
+%CompositeWorkers=1
+# MATRIX Opt=SONIC
+
+PPCS2 ORCA feasibility: formaldehyde
+
+0 1
+C  0.00000000  0.00000000  0.00000000
+O  0.00000000  0.00000000  1.20300000
+H  0.93710000  0.00000000 -0.58070000
+H -0.93710000  0.00000000 -0.58070000
+

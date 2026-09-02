@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "link-standalone"
+version = "0.1.0rc8"
+description = "Standalone LINK optimizer with the ORACLE and SMITH coordinate layers"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "autograd>=1.8,<2",
+  "networkx>=3.2",
+  "numpy>=1.24",
+  "numba>=0.62,<0.63",
+  "Pillow>=10",
+  "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+backends = [
+  "ase>=3.22",
+  "qc-iodata>=1.0",
+]
+rdkit = ["rdkit"]
+
+[project.scripts]
+link-pose-service = "matrix_link.pose_service:main"
+oracle = "matrix_oracle.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+matrix_core = ["data/*.json", "schemas/*.json"]
+matrix_chem = ["data/*.json"]
+matrix_link = ["data/*.json"]
+matrix_oracle = ["data/examples/*", "data/robustness/*", "data/*.toml", "data/*.json"]
+matrix_qm = ["basis_sets/*.gbs", "basis_sets/*.json", "data/*.json", "schemas/*.json"]
+matrix_smith = ["parameters/*.toml", "parameters/fortran/*.inc", "schemas/*.json", "survibfit/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"

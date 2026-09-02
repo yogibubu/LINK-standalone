@@ -1,0 +1,13 @@
+{
+  "schema": "matrix.link.ppcs2_feasibility.v1",
+  "cases": [
+    "acetylene.inp",
+    "formaldehyde.inp"
+  ],
+  "preparation": {
+    "geometry": "ORCA B3LYP-D4/def2-TZVP",
+    "hessian": "ORCA B3LYP-D4/def2-TZVP",
+    "coordinates": "SONIC"
+  },
+  "purpose": "Two-case feasibility check; not a benchmark campaign"
+}

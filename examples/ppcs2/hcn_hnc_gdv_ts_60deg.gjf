@@ -1,0 +1,12 @@
+%NProcShared=8
+%Mem=128GB
+# B3LYP/def2TZVP Opt=(TS,CalcHFFC) SCF=Tight
+
+HCN-HNC transition state, 60 degree bent guess
+
+0 1
+H   0.60750000   1.05205400   0.00000000
+C   0.00000000   0.00000000   0.00000000
+N   1.15300000   0.00000000   0.00000000
+
+

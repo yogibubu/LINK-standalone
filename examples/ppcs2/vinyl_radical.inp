@@ -1,0 +1,16 @@
+%Backend=ppcs2-orca
+%MaxSteps=30
+%Processors=1
+%MemoryGB=8
+%FDWorkers=3
+%CompositeWorkers=1
+# MATRIX Opt=SONIC
+
+vinyl radical LCB25 B2PLYP/3F12r geometry
+
+0 2
+H -1.537510  0.573539  0.000000
+C -0.682259 -0.084131  0.000000
+C  0.612924  0.023045  0.000000
+H  1.263693 -0.845213  0.000000
+H  1.099381  0.999007  0.000000
