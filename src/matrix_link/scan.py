@@ -1615,9 +1615,8 @@ def _run_gaussian_scan_point(
         )
         execution.update(
             {
-                "derivative_transport": "gaussian_checkpoint_fchk_decimal",
-                "derivative_transport_lossless_float64": False,
-                "derivative_transport_significant_digits": 9,
+                "derivative_transport": "gaussian_checkpoint_fchk_float64",
+                "derivative_transport_lossless_float64": True,
                 "derivative_transport_artifact": str(derivative_artifact.resolve()),
                 "restart_artifact": str(checkpoint.resolve()),
                 "restart_artifact_format": "gaussian_chk",

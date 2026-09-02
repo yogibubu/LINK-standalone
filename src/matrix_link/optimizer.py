@@ -4195,6 +4195,16 @@ def _validate_transition_state_task_model(model: OptimizerCoordinateModel) -> No
         raise ValueError("the complete frozen SMITH transition-state chart is rank deficient")
 
 
+def _require_sonic_optimizer_model(model: OptimizerCoordinateModel) -> None:
+    """Reject Cartesian variables at the LINK optimizer boundary."""
+
+    if model.kind not in {"sonic", "typed_onic"}:
+        raise ValueError(
+            "LINK optimization requires SONIC coordinates; Cartesian variables "
+            "are permitted only at the backend interface"
+        )
+
+
 def _lifecycle_task_coordinate_model(
     complete_model: OptimizerCoordinateModel,
     settings: OptimizerSettings,
@@ -4790,7 +4800,8 @@ def optimize_geometry(
     *,
     run_dir: Path | str,
     coordinate_model: OptimizerCoordinateModel | None = None,
-    coordinate_kind: str = "cartesian",
+    coordinate_kind: str = "sonic",
+    allow_non_sonic_coordinates: bool = False,
     coordinates: Sequence[str] = (),
     engine_command: str = "",
     backend: QMScanBackend | None = None,
@@ -4858,6 +4869,8 @@ def optimize_geometry(
             else None
         ),
     )
+    if not bool(allow_non_sonic_coordinates):
+        _require_sonic_optimizer_model(complete_model)
     if settings.stationary_point == "transition_state":
         _validate_transition_state_task_model(complete_model)
     if frozen_chart_reference is not None:
@@ -5361,6 +5374,12 @@ def optimize_geometry(
         phase_gradient, phase_hessian = _restricted_phase_model(
             gradient, hessian, phase_mask, settings
         )
+        step_trust_radius = _effective_gradient_trust_radius(
+            trust_radius,
+            gradient,
+            settings,
+            near_convergence=terminal_minimum_displacement_regime,
+        )
         if use_micro_schedule:
             proposal = _inter_intra_micro_step(
                 service,
@@ -5370,7 +5389,7 @@ def optimize_geometry(
                 gradient,
                 micro_masks[0][1],
                 micro_masks[1][1],
-                trust_radius,
+                step_trust_radius,
                 settings,
             )
         else:
@@ -5380,7 +5399,7 @@ def optimize_geometry(
                 q,
                 phase_hessian,
                 phase_gradient,
-                trust_radius,
+                step_trust_radius,
                 settings,
                 metric=service.optimizer_metric(current.coordinates_angstrom),
                 damping=current_damping,
@@ -5394,7 +5413,7 @@ def optimize_geometry(
                 phase_gradient,
                 phase_hessian,
                 phase_mask,
-                trust_radius,
+                step_trust_radius,
                 settings,
             )
         )
@@ -5405,7 +5424,7 @@ def optimize_geometry(
                 q,
                 phase_hessian,
                 phase_gradient,
-                trust_radius,
+                step_trust_radius,
                 settings,
             )
         model_proposal = proposal
@@ -5477,14 +5496,14 @@ def optimize_geometry(
             )
         try:
             proposal = (
-                _enforce_proposal_gdv_internal_trust(proposal, service, current, q, trust_radius)
+                _enforce_proposal_gdv_internal_trust(proposal, service, current, q, step_trust_radius)
                 if settings.stationary_point == "transition_state"
                 else _enforce_proposal_cartesian_trust(
                     proposal,
                     service,
                     current,
                     q,
-                    trust_radius,
+                    step_trust_radius,
                     settings,
                 )
             )
@@ -5501,14 +5520,14 @@ def optimize_geometry(
             if len(phase_masks) > 1 and not proposal.policy.startswith("phase_"):
                 proposal = replace(proposal, policy=f"phase_{phase_name}:{proposal.policy}")
             proposal = (
-                _enforce_proposal_gdv_internal_trust(proposal, service, current, q, trust_radius)
+                _enforce_proposal_gdv_internal_trust(proposal, service, current, q, step_trust_radius)
                 if settings.stationary_point == "transition_state"
                 else _enforce_proposal_cartesian_trust(
                     proposal,
                     service,
                     current,
                     q,
-                    trust_radius,
+                    step_trust_radius,
                     settings,
                 )
             )
@@ -12662,6 +12681,34 @@ def _accepted_optimizer_trust_update(
     if decision.ratio < 0.10:
         new_damping = max(float(new_damping), OPTIMIZER_DAMPING_MIN)
     return new_damping, new_radius
+
+
+def _effective_gradient_trust_radius(
+    controller_radius: float,
+    gradient: np.ndarray,
+    settings: OptimizerSettings,
+    *,
+    near_convergence: bool = False,
+) -> float:
+    """Return the gradient-adapted radius for the current minimum step.
+
+    The controller radius remains the persistent trust-region state.  The
+    gradient adaptation is a local step bound only: it is active for minima
+    sufficiently far from convergence and is deliberately disabled for
+    transition states and the terminal convergence regime.
+    """
+    radius = float(controller_radius)
+    if settings.stationary_point == "transition_state" or near_convergence:
+        return radius
+    force = np.asarray(gradient, dtype=float).reshape(-1)
+    if force.size == 0 or not np.all(np.isfinite(force)):
+        return radius
+    force_max = float(np.max(np.abs(force)))
+    force_tol = float(settings.max_force_tolerance)
+    if force_max <= 10.0 * force_tol:
+        return radius
+    adapted = float(settings.trust_radius) * math.sqrt(force_tol / force_max)
+    return min(radius, adapted)
 
 
 def _rejected_optimizer_trust_update(
