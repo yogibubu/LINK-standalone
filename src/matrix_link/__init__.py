@@ -408,7 +408,7 @@ _LAZY_EXPORT_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ),
     (
         "ppcs2",
-        ("PPCS2_ORCA_FORMULA", "PPCS2_ORCA_SCHEMA", "ppcs2_orca_backend"),
+        ("PPCS2_ORCA_FORMULA", "PPCS2_ORCA_SCHEMA", "pcs_mrcc_backend", "pcs_orca_backend"),
     ),
     ("periodic_pes", ("PeriodicPESAdapter",)),
     (

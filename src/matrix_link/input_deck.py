@@ -210,9 +210,9 @@ def run_optimization_input(
 
     write_gicforge_build_sections(xyzin, symmetrize=True)
     if deck.backend == "ppcs2-orca":
-        from .ppcs2 import ppcs2_orca_backend
+        from .ppcs2 import pcs_orca_backend
 
-        backend = ppcs2_orca_backend(
+        backend = pcs_orca_backend(
             charge=deck.charge,
             multiplicity=deck.multiplicity,
             executable=deck.executable,

@@ -1,4 +1,4 @@
-"""PPCS2 energy model assembled from ORCA single-point calculations."""
+"""PCS2 composite energy models assembled from external backends."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ PPCS2_ORCA_SCHEMA = "matrix.link.ppcs2_orca.v1"
 PPCS2_ORCA_FORMULA = "F12-CCSD(T)/cc-pVDZ-F12 + ae-MP2/cc-pwCVTZ - fc-MP2/cc-pwCVTZ"
 
 
-def ppcs2_orca_backend(
+def pcs_orca_backend(
     *,
     charge: int = 0,
     multiplicity: int = 1,
@@ -24,7 +24,7 @@ def ppcs2_orca_backend(
     tight_pno: bool = True,
     coupled_cluster_approximation: str = "canonical",
 ) -> QMScanBackend:
-    """Return the all-ORCA PPCS2 composite surface used by LINK.
+    """Return the all-ORCA PCS2 composite surface used by LINK.
 
     The canonical explicitly correlated coupled-cluster contribution and both
     conventional MP2 core-valence terms are evaluated at the same Cartesian
@@ -118,4 +118,47 @@ def ppcs2_orca_backend(
     )
 
 
-__all__ = ["PPCS2_ORCA_FORMULA", "PPCS2_ORCA_SCHEMA", "ppcs2_orca_backend"]
+def pcs_mrcc_backend(
+    *, charge: int = 0, multiplicity: int = 1,
+    executable: str | None = None, timeout: float | None = None,
+    env: Mapping[str, str] | None = None, processors: int = 1,
+    memory_gb: int | None = None, composite_parallel_workers: int = 1,
+) -> QMScanBackend:
+    """Return the three-term PCS2 composite surface assembled by MRCC."""
+    common = {
+        "charge": int(charge), "multiplicity": int(multiplicity),
+        "executable": executable, "timeout": timeout,
+        "env": None if env is None else dict(env), "processors": int(processors),
+        "memory_gb": memory_gb, "properties": ("energy",),
+        "restart_reuse_for_displacements": False,
+    }
+    coupled_cluster = QMScanBackend(
+        name="mrcc", method="CCSD(T)-F12", basis="cc-pVDZ-F12",
+        route="ccprog=mrcc", gradient_mode="energy", **common,
+    )
+    all_electron_mp2 = QMScanBackend(
+        name="mrcc", method="DF-MP2", basis="cc-pwCVTZ",
+        route="ccprog=mrcc core=corr", gradient_mode="analytic", **common,
+    )
+    frozen_core_mp2 = QMScanBackend(
+        name="mrcc", method="DF-MP2", basis="cc-pwCVTZ",
+        route="ccprog=mrcc", gradient_mode="analytic", **common,
+    )
+    return QMScanBackend(
+        name="linear_composite", charge=int(charge), multiplicity=int(multiplicity),
+        gradient_mode="hybrid", properties=("energy",),
+        composite_terms=(
+            QMBackendTerm("CCSD(T)-F12", +1.0, coupled_cluster),
+            QMBackendTerm("ae-MP2/wC3", +1.0, all_electron_mp2),
+            QMBackendTerm("fc-MP2/wC3", -1.0, frozen_core_mp2),
+        ), composite_parallel_workers=int(composite_parallel_workers),
+        resolution={
+            "schema": "matrix.link.pcs_mrcc.v1",
+            "formula": "CCSD(T)-F12/cc-pVDZ-F12 + ae-MP2/cc-pwCVTZ - fc-MP2/cc-pwCVTZ",
+            "implementation": "all_MRCC", "gradient_coordinates": "SONIC",
+            "gradient_assembly": "finite_difference_CCSD(T)-F12_plus_analytic_MP2_core_valence",
+        }, restart_reuse_for_displacements=False,
+    )
+
+
+__all__ = ["PPCS2_ORCA_FORMULA", "PPCS2_ORCA_SCHEMA", "pcs_mrcc_backend", "pcs_orca_backend"]

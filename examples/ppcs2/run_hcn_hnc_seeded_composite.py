@@ -15,7 +15,7 @@ from matrix_link.optimizer import (
     optimize_geometry,
     optimizer_hessian_from_engine_hessian,
 )
-from matrix_link.ppcs2 import ppcs2_orca_backend
+from matrix_link.ppcs2 import pcs_orca_backend
 from matrix_smith import write_gicforge_build_sections
 
 
@@ -47,7 +47,7 @@ def main() -> int:
     hessian = optimizer_hessian_from_engine_hessian(
         "gaussian", args.hessian_log, model
     )
-    backend = ppcs2_orca_backend(
+    backend = pcs_orca_backend(
         charge=0,
         multiplicity=1,
         executable="/Users/vincenzobarone/orca_6_1_1/orca",

@@ -2046,6 +2046,10 @@ def _run_mrcc_scan_point(
         charge=spec.charge,
         multiplicity=spec.multiplicity,
     )
+    route_keywords = tuple(token for token in str(spec.route).split() if "=" in token)
+    if route_keywords:
+        with input_path.open("a", encoding="utf-8") as handle:
+            handle.write("\n".join(route_keywords) + "\n")
     run = run_mrcc_job(
         point_dir,
         executable=spec.executable,
